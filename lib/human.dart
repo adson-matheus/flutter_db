@@ -30,18 +30,32 @@ void main() async {
     join(await getDatabasesPath(), 'human.db'),
     onCreate: (db, version) {
       return db.execute(
-          'CREATE TABLE Human (id INTEGER PRIMARY KEY, name TEXT NOT NULL, age TEXT NOT NULL)');
+          'CREATE TABLE humans(id INTEGER PRIMARY KEY, name TEXT, age INTEGER)');
     },
     version: 1,
   );
 
   Future<void> insertHuman(Human human) async {
     final db = await database;
-    await db.insert('Human', human.toMap(),
+    await db.insert('humans', human.toMap(),
         conflictAlgorithm: ConflictAlgorithm.replace);
+  }
+
+  Future<List<Human>> getHuman() async {
+    final db = await database;
+
+    final List<Map<String, dynamic>> maps = await db.query(
+      'humans',
+    );
+
+    return List.generate(maps.length, (i) {
+      return Human(
+          id: maps[i]['id'], name: maps[i]['name'], age: maps[i]['age']);
+    });
   }
 
   var adson = Human(id: 0, name: 'Adson', age: 21);
 
   await insertHuman(adson);
+  print(await getHuman());
 }
