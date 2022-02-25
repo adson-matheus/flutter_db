@@ -2,6 +2,9 @@ import 'package:flutter/widgets.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
+//database crud flutter
+//https://docs.flutter.dev/cookbook/persistence/sqlite#6-retrieve-the-list-of-dogs
+
 class Human {
   final int id;
   final String name;
@@ -54,8 +57,37 @@ void main() async {
     });
   }
 
+  Future<void> updateHuman(Human human) async {
+    final db = await database;
+
+    db.update('humans', human.toMap(), where: 'id = ?', whereArgs: [human.id]);
+  }
+
+  Future<void> deleteHuman(Human human) async {
+    final db = await database;
+
+    db.delete('humans', where: 'id = ?', whereArgs: [human.id]);
+  }
+
+  //Human object
   var adson = Human(id: 0, name: 'Adson', age: 21);
 
+  //create
   await insertHuman(adson);
+
+  //read
+  print(await getHuman());
+
+  //update
+  adson = Human(id: adson.id, name: adson.name, age: adson.age + 1);
+  await updateHuman(adson);
+
+  //read
+  print(await getHuman());
+
+  //delete
+  await deleteHuman(adson);
+
+  //read
   print(await getHuman());
 }
